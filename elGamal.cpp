@@ -7,13 +7,11 @@
 class ElGamalCrypto
 {
 private:
-    // System parameters
-    long long prime;      // Prime modulus p
-    long long generator;  // Generator/primitive root α
-    long long privateKey; // Private key a
-    long long publicKey;  // Public key β = α^a mod p
+    long long prime;      
+    long long generator;  
+    long long privateKey; 
+    long long publicKey;  
 
-    // Helper methods
     bool checkPrime(long long num) const
     {
         if (num < 2)
@@ -55,85 +53,73 @@ private:
         return 1 + rand() % (max - 1);
     }
 
-    // Modular multiplicative inverse
     long long modInverse(long long a, long long m) const
     {
         return modPow(a, m - 2, m);
     }
 
 public:
-    // Constructor - initialize with default values
     ElGamalCrypto() : prime(0), generator(0), privateKey(0), publicKey(0)
     {
         std::srand(static_cast<unsigned int>(std::time(nullptr)));
     }
 
-    // Setup system parameters
     bool setupSystem(long long p, long long g, long long privKey)
     {
         std::cout << "\n[System Setup] Validating parameters..." << std::endl;
 
-        // Validate prime
         if (!checkPrime(p))
         {
-            std::cout << "  ❌ Error: " << p << " is not a prime number." << std::endl;
+            std::cout << "  Error: " << p << " is not a prime number." << std::endl;
             return false;
         }
-        std::cout << "  ✓ Prime validation passed." << std::endl;
+        std::cout << "  Prime validation passed." << std::endl;
 
-        // Validate private key
         if (privKey < 1 || privKey >= p - 1)
         {
-            std::cout << "  ❌ Error: Private key must be between 1 and " << p - 2 << "." << std::endl;
+            std::cout << "  Error: Private key must be between 1 and " << p - 2 << "." << std::endl;
             return false;
         }
-        std::cout << "  ✓ Private key validation passed." << std::endl;
+        std::cout << "  Private key validation passed." << std::endl;
 
-        // Validate generator
         if (!checkPrimitiveRoot(g, p))
         {
-            std::cout << "  ❌ Error: " << g << " is not a primitive root modulo " << p << "." << std::endl;
+            std::cout << "  Error: " << g << " is not a primitive root modulo " << p << "." << std::endl;
             return false;
         }
-        std::cout << "  ✓ Generator validation passed." << std::endl;
+        std::cout << "  Generator validation passed." << std::endl;
 
-        // Set parameters
         prime = p;
         generator = g;
         privateKey = privKey;
 
-        // Generate public key
         publicKey = modPow(generator, privateKey, prime);
 
         std::cout << "\n[System Setup] Complete! ElGamal cryptosystem is ready." << std::endl;
         return true;
     }
 
-    // Generate keypair
     void generateKeypair()
     {
         publicKey = modPow(generator, privateKey, prime);
     }
 
-    // Display public parameters
     void displayPublicParameters() const
     {
-        std::cout << "\n[Public Parameters] 🔑" << std::endl;
-        std::cout << "  • Prime (p): " << prime << std::endl;
-        std::cout << "  • Generator (α): " << generator << std::endl;
-        std::cout << "  • Public Key (β): " << publicKey << std::endl;
+        std::cout << "\n[Public Parameters] " << std::endl;
+        std::cout << "  Prime (p): " << prime << std::endl;
+        std::cout << "  Generator (α): " << generator << std::endl;
+        std::cout << "  Public Key (β): " << publicKey << std::endl;
     }
 
-    // Encrypt message
     std::pair<long long, long long> encrypt(long long message)
     {
         if (message < 0 || message >= prime)
         {
-            std::cout << "  ❌ Error: Message must be between 0 and " << prime - 1 << "." << std::endl;
+            std::cout << "  Error: Message must be between 0 and " << prime - 1 << "." << std::endl;
             return {-1, -1};
         }
 
-        // Generate random k
         long long k = generateSecureRandom(prime - 1);
 
         // Compute ciphertext components
