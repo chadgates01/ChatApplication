@@ -39,62 +39,56 @@ public:
 
         thread recvThread(&ChatClient::receiveMessages, this);
         sendMessages();
-        recvThread.join(); // wait for receiving thread to finish
+        recvThread.join();
     }
 
 private:
     void setupUser()
     {
-        cout << "🔒 Welcome to Secure Multicast Chat!" << endl;
+        cout << "Welcome to Secure Multicast Chat!" << endl;
         cout << "Enter your username: ";
         getline(cin, userId);
     }
 
     bool initializeNetwork()
     {
-        // Initialize Winsock
         WSADATA wsaData;
         if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
         {
-            cerr << "❌ WSAStartup failed.\n";
+            cerr << "WSAStartup failed.\n";
             return false;
         }
 
-        // Create socket
         sock = socket(AF_INET, SOCK_DGRAM, 0);
         if (sock == INVALID_SOCKET)
         {
-            cerr << "❌ Socket creation failed.\n";
+            cerr << "Socket creation failed.\n";
             WSACleanup();
             return false;
         }
 
-        // Reuse address
         BOOL reuse = TRUE;
         setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char *)&reuse, sizeof(reuse));
 
-        // Bind to local port
         sockaddr_in localAddr{};
         localAddr.sin_family = AF_INET;
         localAddr.sin_port = htons(CHAT_PORT);
         localAddr.sin_addr.s_addr = htonl(INADDR_ANY);
         if (bind(sock, (sockaddr *)&localAddr, sizeof(localAddr)) == SOCKET_ERROR)
         {
-            cerr << "❌ Bind failed.\n";
+            cerr << "Bind failed.\n";
             return false;
         }
 
-        // Join multicast group
         ip_mreq mreq{};
         mreq.imr_multiaddr.s_addr = inet_addr(MULTICAST_GROUP);
         mreq.imr_interface.s_addr = htonl(INADDR_ANY);
         if (setsockopt(sock, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char *)&mreq, sizeof(mreq)) == SOCKET_ERROR)
         {
-            cerr << "❌ Failed to join multicast group.\n";
+            cerr << "Failed to join multicast group.\n";
             return false;
         }
 
-        // Prepare group address for sending
         groupAddr.sin_family = AF_INET;
         groupAddr.sin_port = htons(CHAT_PORT);
         groupAddr.sin_addr.s_addr = inet_addr(MULTICAST_GROUP);
@@ -147,8 +141,8 @@ private:
                 if (senderName != userId &&
                     (messageContent.find("@" + userId) != string::npos || messageContent.find("@ALL") != string::npos))
                 {
-                    cout << "\n📩 " << senderName << ": " << messageContent << endl;
-                    cout << "\nWho do you want to message? (1) All  (2) Specific User\n> ";
+                    cout << "\n" << senderName << ": " << messageContent << endl;
+                    cout << "\nWho do you want to message? \n(1) All  \n(2) Specific User\n> ";
                     cout.flush();
                 }
             }
@@ -175,7 +169,7 @@ private:
             }
             else
             {
-                cout << "❌ Invalid choice.\n";
+                cout << "Invalid choice.\n";
                 continue;
             }
 
@@ -184,7 +178,7 @@ private:
 
             if (message == "/exit")
             {
-                cout << "👋 Exiting chat...\n";
+                cout << "Exiting chat...\n";
                 break;
             }
 
@@ -196,9 +190,6 @@ private:
     }
 };
 
-// =======================
-// Entry point
-// =======================
 int main()
 {
     ChatClient client;
