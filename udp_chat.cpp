@@ -190,8 +190,15 @@ private:
     }
 };
 
+void initial()
+{
+    cout<<endl<<"-----------------------------UDP Multicast Chat Application-----------------------------"<<endl;
+    cout<<"-------------------Done by: Subham Sanket Rout-----Roll no: 24CS06017---------------------"<<endl;
+}
+
 int main()
 {
+    initial();
     ChatClient client;
     client.run();
     return 0;
