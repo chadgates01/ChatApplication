@@ -122,32 +122,26 @@ public:
 
         long long k = generateSecureRandom(prime - 1);
 
-        // Compute ciphertext components
         long long c1 = modPow(generator, k, prime);
         long long c2 = (message * modPow(publicKey, k, prime)) % prime;
 
         return {c1, c2};
     }
 
-    // Decrypt ciphertext
     long long decrypt(const std::pair<long long, long long> &ciphertext)
     {
         long long c1 = ciphertext.first;
         long long c2 = ciphertext.second;
 
-        // Calculate shared secret
         long long s = modPow(c1, privateKey, prime);
 
-        // Calculate s^(-1) mod p
         long long sInverse = modInverse(s, prime);
 
-        // Compute message = c2 * s^(-1) mod p
         long long message = (c2 * sInverse) % prime;
 
         return message;
     }
 
-    // Getters
     long long getPrime() const { return prime; }
     long long getGenerator() const { return generator; }
     long long getPublicKey() const { return publicKey; }
@@ -159,10 +153,8 @@ int main()
     std::cout << "    ElGamal Encryption System    " << std::endl;
     std::cout << "=================================" << std::endl;
 
-    // Create ElGamal system
     ElGamalCrypto elgamal;
 
-    // Get parameters from user
     long long p, g, a;
     long long message;
 
@@ -176,50 +168,45 @@ int main()
     std::cout << "Enter private key (a): ";
     std::cin >> a;
 
-    // Setup the system
     if (!elgamal.setupSystem(p, g, a))
     {
-        std::cout << "\n❌ System setup failed. Exiting..." << std::endl;
+        std::cout << "\n System setup failed. Exiting..." << std::endl;
         return 1;
     }
 
-    // Display public parameters
     elgamal.displayPublicParameters();
 
-    // Get message to encrypt
     std::cout << "\n[Encryption]" << std::endl;
     std::cout << "Enter message to encrypt (0 <= m < " << p << "): ";
     std::cin >> message;
 
-    // Encrypt message
     std::pair<long long, long long> ciphertext = elgamal.encrypt(message);
     if (ciphertext.first == -1)
     {
-        std::cout << "❌ Encryption failed. Exiting..." << std::endl;
+        std::cout << " Encryption failed. Exiting..." << std::endl;
         return 1;
     }
 
-    std::cout << "\n[Encryption Result] 🔒" << std::endl;
+    std::cout << "\n[Encryption Result] " << std::endl;
     std::cout << "  • Ciphertext (c₁): " << ciphertext.first << std::endl;
     std::cout << "  • Ciphertext (c₂): " << ciphertext.second << std::endl;
 
-    // Decrypt message
     long long decryptedMessage = elgamal.decrypt(ciphertext);
 
-    std::cout << "\n[Decryption Result] 🔓" << std::endl;
+    std::cout << "\n[Decryption Result] " << std::endl;
     std::cout << "  • Original message: " << message << std::endl;
     std::cout << "  • Decrypted message: " << decryptedMessage << std::endl;
 
     if (message == decryptedMessage)
     {
-        std::cout << "  ✓ Verification successful! Decryption works correctly." << std::endl;
+        std::cout << "  Verification successful! Decryption works correctly." << std::endl;
     }
     else
     {
-        std::cout << "  ❌ Verification failed! Decryption error occurred." << std::endl;
+        std::cout << "  Verification failed! Decryption error occurred." << std::endl;
     }
 
-    std::cout << "\n[Process Complete] ✅" << std::endl;
+    std::cout << "\n[Process Complete] " << std::endl;
 
     return 0;
 }
